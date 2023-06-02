@@ -11,5 +11,6 @@ namespace WindowsFormsApp7.Repository
         List<Value> GetAll();
         int insert(Value value);
         int update(int id, Value value);
+        int Delete(int id);
     }
 }

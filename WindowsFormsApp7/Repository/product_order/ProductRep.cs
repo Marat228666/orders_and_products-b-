@@ -84,5 +84,25 @@ namespace WindowsFormsApp7.Repository.product_order
             return rows;
         }
 
+        public int Delete(int id)
+        {
+            int rows = 0;
+            MySqlConnection conn = new MySqlConnection(ConnString);
+            MySqlCommand comm = conn.CreateCommand();
+            comm.CommandText = $"DELETE FROM SHOP.product WHERE id={id};";
+            try
+            {
+                conn.OpenAsync();
+                rows = comm.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Err:{e.Message}");
+            }
+            conn.CloseAsync();
+            return rows;
+        }
     }
+
 }
+

@@ -20,7 +20,7 @@ namespace WindowsFormsApp7
         
         
             int UpdId;
-            bool read;
+            
             IProductRep productRep;
             IOrderRep orderRep;
 
@@ -35,26 +35,22 @@ namespace WindowsFormsApp7
             {
                 try
                 {
-                    if (read)
+                    switch (tabControl1.SelectedIndex)
                     {
-                        switch (tabControl1.SelectedIndex)
-                        {
-                            case 0:
-                                {
-                                    label2.Text = "name:";
-                                    label3.Text = "price:";
-                                    break;
-                                }
-                            case 1:
-                                {
-                                    label2.Text = "client_name:";
-                                    label3.Text = "product_id:";
-                                    break;
-                                }
-                        }
-
-                    }
+                        case 0:
+                            {
+                                label2.Text = "name:";
+                                label3.Text = "price:";
+                                break;
+                            }
+                        case 1:
+                            {   
+                                label2.Text = "client_name:";
+                                label3.Text = "product_id:";
+                                break;
+                            }
                 }
+            }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Err:{ex.Message}");
@@ -143,7 +139,6 @@ namespace WindowsFormsApp7
             private void button1_Click(object sender, EventArgs e)
             {
                 RefreshTable();
-                read = true;
                 boxesandlables();
             }
 
@@ -162,9 +157,9 @@ namespace WindowsFormsApp7
                             }
                         case 1:
                             {
-                                for (int i = 0; i < dataGridView1.RowCount; i++)
+                                for (int i = 0; i < productRep.GetAll().Count; i++)
                                 {
-                                    if ((int)dataGridView1.Rows[i].Cells[0].Value == int.Parse(textBox3.Text))
+                                    if (productRep.GetAll()[i].id == int.Parse(textBox3.Text))
                                     {
                                         rowsaffected = orderRep.insert(new order {  client_name = textBox2.Text, product_id = int.Parse(textBox3.Text) });
                                         correct_id = true;
@@ -173,7 +168,7 @@ namespace WindowsFormsApp7
                                 }
                                 if (!correct_id)
                                 {
-                                    MessageBox.Show("Неверный product_id");
+                                    throw new Exception("Неверный product_id");
                                 }
                                 break;
                             }
@@ -203,10 +198,11 @@ namespace WindowsFormsApp7
                             }
                         case 1:
                             {
-                                for (int i = 0; i < dataGridView1.RowCount; i++)
+                                
+                                for (int i = 0; i < productRep.GetAll().Count; i++)
                                 {
                                 
-                                    if ((int)dataGridView1.Rows[i].Cells[0].Value == int.Parse(textBox3.Text))
+                                    if (productRep.GetAll()[i].id == int.Parse(textBox3.Text))
                                     {
                                         rowsaffected = orderRep.update(UpdId, new order { client_name = textBox2.Text, product_id = int.Parse(textBox3.Text) });
                                         correct_id = true;
@@ -215,7 +211,7 @@ namespace WindowsFormsApp7
                                 }
                                 if (!correct_id)
                                 {
-                                    MessageBox.Show("Неверный product_id");
+                                    throw new Exception("Неверный product_id");
                                 }
                                 break;
                             }
@@ -230,9 +226,50 @@ namespace WindowsFormsApp7
                     MessageBox.Show($"Err:{ex.Message}");
                 }
             }
-
-
+        private void button4_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                switch (tabControl1.SelectedIndex)
+                {
+                    case 0:
+                        {
+                            int rowsaffected = 0;
+                            bool correctId = true;
+                            foreach (var order in orderRep.GetAll())
+                            {
+                                if (order.product_id == (int)dataGridView1.SelectedRows[0].Cells[0].Value)
+                                {
+                                    correctId=false;
+                                    throw new Exception("Этот продукт есть в заказе. Нужно удалить заказ стобы удалить продукт.");
+                                }
+                            }
+                            if(correctId)
+                            {
+                                rowsaffected = productRep.Delete(UpdId);
+                            }
+                            MessageBox.Show($"Rows affected: {rowsaffected}");
+                            RefreshTable();
+                            break;
+                        }
+                   case 1:
+                        {
+                            int rowsaffected = 0;
+                            rowsaffected = orderRep.Delete(UpdId);
+                            MessageBox.Show($"Rows affected: {rowsaffected}");
+                            RefreshTable();
+                            break;
+                        }
+                }
+            }
+            catch (Exception er)
+            {
+                MessageBox.Show($"Err: {er.Message}");
+            }
         }
+
+
+    }
     
 
 }
